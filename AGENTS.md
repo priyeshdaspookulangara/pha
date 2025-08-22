@@ -28,6 +28,7 @@ The backend and frontend communicate via AJAX calls. All data is exchanged in JS
         3.  Add a `case` to the `switch` statement inside the `router()` function in `js/app.js`. This case should call a function to load the data for your new page.
     -   **API Calls**: Use the `apiCall(method, url, data)` helper function for all AJAX requests to the backend.
     -   **Code Organization**: When adding logic for a new page, group all related functions and event handlers together and use comments to label the section (e.g., `// --- NEW SALE PAGE LOGIC ---`).
+-   **Purchase Orders**: The purchase order module is a core part of the system. It involves creating purchase orders, and then receiving shipments against them, which updates the main inventory. Be careful when modifying this workflow. The `api/receive_shipment.php` script is particularly critical.
 
 ## Testing
 

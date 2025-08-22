@@ -149,3 +149,54 @@ CREATE TABLE `notifications` (
   KEY `doctor_id` (`doctor_id`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table for distributors/wholesalers
+CREATE TABLE `distributors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `contact_person` varchar(100) DEFAULT NULL,
+  `contact_email` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table for linking products to distributors
+CREATE TABLE `product_distributor` (
+  `product_id` int(11) NOT NULL,
+  `distributor_id` int(11) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`product_id`,`distributor_id`),
+  KEY `distributor_id` (`distributor_id`),
+  CONSTRAINT `product_distributor_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `product_distributor_ibfk_2` FOREIGN KEY (`distributor_id`) REFERENCES `distributors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table for purchase orders
+CREATE TABLE `purchase_orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `distributor_id` int(11) NOT NULL,
+  `order_date` date NOT NULL,
+  `expected_delivery_date` date DEFAULT NULL,
+  `status` enum('draft','ordered','partially_received','completed','cancelled') NOT NULL DEFAULT 'draft',
+  `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `distributor_id` (`distributor_id`),
+  CONSTRAINT `purchase_orders_ibfk_1` FOREIGN KEY (`distributor_id`) REFERENCES `distributors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table for items within a purchase order
+CREATE TABLE `purchase_order_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `purchase_order_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `price_per_unit` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `purchase_order_id` (`purchase_order_id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `purchase_order_items_ibfk_1` FOREIGN KEY (`purchase_order_id`) REFERENCES `purchase_orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `purchase_order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

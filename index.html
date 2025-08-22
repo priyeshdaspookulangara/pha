@@ -16,6 +16,10 @@
         <a href="#orders">Orders</a>
         <a href="#new-sale">New Sale</a>
         <a href="#new-prescription">New Prescription</a>
+        <a href="#distributors">Distributors</a>
+        <a href="#purchase-orders">Purchase Orders</a>
+        <a href="#reorder-suggestions">Reorder Suggestions</a>
+        <a href="#new-po">New Purchase Order</a>
     </nav>
 
     <main id="main-content">
@@ -214,6 +218,114 @@
             </table>
 
             <button id="btn-submit-prescription">Submit Prescription</button>
+        </section>
+
+        <section id="distributors" class="page" style="display: none;">
+            <h1>Distributors</h1>
+            <button id="btn-show-add-distributor-form">Add New Distributor</button>
+
+            <form id="distributor-form" class="hidden">
+                <input type="hidden" id="distributor-id">
+                <input type="text" id="distributor-name" placeholder="Distributor Name" required>
+                <input type="text" id="distributor-contact-person" placeholder="Contact Person">
+                <input type="email" id="distributor-contact-email" placeholder="Contact Email">
+                <input type="tel" id="distributor-phone" placeholder="Phone Number">
+                <button type="submit">Save Distributor</button>
+                <button type="button" id="btn-cancel-distributor-edit">Cancel</button>
+            </form>
+
+            <table id="distributors-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Contact Person</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Distributor rows will be inserted here -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="purchase-orders" class="page" style="display: none;">
+            <h1>Purchase Orders</h1>
+            <table id="purchase-orders-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Distributor</th>
+                        <th>Order Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- PO rows will be inserted here -->
+                </tbody>
+            </table>
+            <div id="po-details-view" class="hidden">
+                <!-- Details will be populated by JS -->
+            </div>
+        </section>
+
+        <section id="reorder-suggestions" class="page" style="display: none;">
+            <h1>Reorder Suggestions</h1>
+            <button id="btn-run-auto-reorder">Check for Low Stock & Generate Suggestions</button>
+            <p>This will create new draft Purchase Orders for any items below their reorder level.</p>
+            <hr>
+            <h2>Draft Purchase Orders</h2>
+            <table id="draft-po-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Distributor</th>
+                        <th>Order Date</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Draft PO rows will be inserted here -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="new-po" class="page" style="display: none;">
+            <h1>New Purchase Order</h1>
+
+            <form id="new-po-form">
+                <select id="new-po-distributor-id" required></select>
+                <input type="date" id="new-po-order-date" required>
+                <input type="date" id="new-po-expected-date">
+                <hr>
+                <select id="new-po-product-id" required></select>
+                <input type="number" id="new-po-quantity" placeholder="Quantity" required min="1">
+                <input type="number" id="new-po-price" placeholder="Price per unit" required step="0.01" min="0">
+                <button type="button" id="btn-add-to-po-cart">Add Item</button>
+            </form>
+
+            <h2>Purchase Order Items</h2>
+            <table id="po-cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price/Unit</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- PO cart items will be inserted here -->
+                </tbody>
+            </table>
+
+            <button id="btn-submit-po">Submit Purchase Order</button>
         </section>
     </main>
 
