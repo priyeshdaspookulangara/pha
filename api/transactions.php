@@ -55,6 +55,21 @@ if ($method == 'POST') {
                 throw new Exception("Failed to update invoice status.");
             }
 
+            // 3. Add entry to accounting ledger
+            $order_id_query = "SELECT order_id FROM invoices WHERE id = ?";
+            $order_stmt = $conn->prepare($order_id_query);
+            $order_stmt->bind_param("i", $invoice_id);
+            $order_stmt->execute();
+            $order_id = $order_stmt->get_result()->fetch_assoc()['order_id'];
+            $description = "Revenue from customer order #" . $order_id;
+
+            $ledger_query = "INSERT INTO accounting_ledger (type, description, amount, reference_id, reference_type) VALUES ('revenue', ?, ?, ?, 'customer_order')";
+            $ledger_stmt = $conn->prepare($ledger_query);
+            $ledger_stmt->bind_param("sdi", $description, $amount, $order_id);
+            if (!$ledger_stmt->execute()) {
+                throw new Exception("Failed to log transaction in ledger.");
+            }
+
             // Commit transaction
             $conn->commit();
 

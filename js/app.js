@@ -426,13 +426,19 @@ $(document).ready(function() {
                 approveButton = `<button class="btn-approve-po" data-po-id="${po.id}">Approve & Order</button>`;
             }
 
+            let paidButton = '';
+            if (po.status === 'completed' && po.payment_status === 'unpaid') {
+                paidButton = `<button class="btn-mark-po-paid" data-po-id="${po.id}">Mark as Paid</button>`;
+            }
+
             detailsView.html(`
                 <h2>Purchase Order #${po.id}</h2>
                 <p><strong>Distributor:</strong> ${po.distributor_name}</p>
-                <p><strong>Status:</strong> ${po.status}</p>
+                <p><strong>Status:</strong> ${po.status} | <strong>Payment:</strong> ${po.payment_status}</p>
                 <p><strong>Total:</strong> ${po.total_amount}</p>
                 ${itemsHtml}
                 ${approveButton}
+                ${paidButton}
                 <button class="btn-receive-shipment" data-po-id="${po.id}">Receive Shipment</button>
                 <button class="btn-close-po-details">Close</button>
                 <div id="receive-shipment-form-container"></div>
@@ -579,6 +585,19 @@ $(document).ready(function() {
         });
     });
 
+    $('#po-details-view').on('click', '.btn-mark-po-paid', function() {
+        const poId = $(this).data('po-id');
+        if (confirm('Are you sure you want to mark this purchase order as paid?')) {
+            apiCall('POST', `pay_purchase_order.php`, { purchase_order_id: poId }).done(function(response) {
+                alert(response.message);
+                $('#po-details-view').addClass('hidden').empty();
+                loadPurchaseOrders();
+            }).fail(function(xhr) {
+                alert('Error: ' + xhr.responseJSON.message);
+            });
+        }
+    });
+
     // --- ROUTER ---
     function router() {
         const hash = window.location.hash || '#dashboard';
@@ -597,6 +616,7 @@ $(document).ready(function() {
             case '#orders': loadOrders(); break;
             case '#purchase-orders': loadPurchaseOrders(); break;
             case '#reorder-suggestions': loadReorderSuggestions(); break;
+            case '#accounting': loadAccountingPage(); break;
         }
     }
     $(window).on('hashchange', router);

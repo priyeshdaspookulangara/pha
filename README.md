@@ -12,6 +12,7 @@ This project is a comprehensive, web-based pharmacy management system designed f
 -   **Billing and Transactions**: Generation of invoices and recording of payments.
 -   **Reporting**: Dynamic reports on sales, stock levels, and expiring products.
 -   **Purchase Order Management**: A full module to manage distributors, create manual or automated purchase orders, and receive shipments to update inventory.
+-   **Accounting**: A simple ledger system to track revenue from sales and expenses from purchase orders.
 
 ## Project Structure
 
@@ -57,6 +58,7 @@ This project is a comprehensive, web-based pharmacy management system designed f
         -   **Purchase Orders**: View purchase orders sent to distributors.
         -   **Reorder Suggestions**: View and approve automatically generated purchase orders for low-stock items.
         -   **New Purchase Order**: Manually create a new purchase order.
+        -   **Accounting**: View the financial ledger with revenues and expenses.
 
 ## API Documentation
 
@@ -102,3 +104,7 @@ The API is RESTful and uses JSON for all responses. Here is a summary of the ava
     -   `GET, POST, PUT /api/purchase_orders.php`: CRUD for purchase orders.
     -   `POST /api/receive_shipment.php`: Receive a shipment against a purchase order.
     -   `POST /api/automated_reorder.php`: Run the automated reordering logic.
+
+-   **Accounting**:
+    -   `GET /api/accounting.php`: Get the full ledger and financial summary.
+    -   `POST /api/pay_purchase_order.php`: Mark a PO as paid and log the expense.

@@ -179,6 +179,7 @@ CREATE TABLE `purchase_orders` (
   `order_date` date NOT NULL,
   `expected_delivery_date` date DEFAULT NULL,
   `status` enum('draft','ordered','partially_received','completed','cancelled') NOT NULL DEFAULT 'draft',
+  `payment_status` enum('unpaid','paid') NOT NULL DEFAULT 'unpaid',
   `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -199,4 +200,16 @@ CREATE TABLE `purchase_order_items` (
   KEY `product_id` (`product_id`),
   CONSTRAINT `purchase_order_items_ibfk_1` FOREIGN KEY (`purchase_order_id`) REFERENCES `purchase_orders` (`id`) ON DELETE CASCADE,
   CONSTRAINT `purchase_order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Table for accounting ledger
+CREATE TABLE `accounting_ledger` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `transaction_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `type` enum('revenue','expense') NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `reference_id` int(11) DEFAULT NULL,
+  `reference_type` enum('customer_order','purchase_order') DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

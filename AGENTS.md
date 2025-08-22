@@ -29,6 +29,7 @@ The backend and frontend communicate via AJAX calls. All data is exchanged in JS
     -   **API Calls**: Use the `apiCall(method, url, data)` helper function for all AJAX requests to the backend.
     -   **Code Organization**: When adding logic for a new page, group all related functions and event handlers together and use comments to label the section (e.g., `// --- NEW SALE PAGE LOGIC ---`).
 -   **Purchase Orders**: The purchase order module is a core part of the system. It involves creating purchase orders, and then receiving shipments against them, which updates the main inventory. Be careful when modifying this workflow. The `api/receive_shipment.php` script is particularly critical.
+-   **Accounting**: The accounting module is tied to customer transactions and purchase order payments. When a payment is made or received, an entry should be logged in the `accounting_ledger` table. Ensure that any changes to payment-related APIs (`transactions.php`, `pay_purchase_order.php`) maintain this link.
 
 ## Testing
 
