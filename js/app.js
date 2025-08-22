@@ -329,6 +329,8 @@ $(document).ready(function() {
     $('#orders-table').on('click', '.btn-view-order', function() {
         const orderId = $(this).data('id');
         apiCall('GET', `orders.php?id=${orderId}`).done(function(order) {
+            // Store the current order ID on the details view for other buttons to use
+            $('#order-details-view').data('current-order-id', order.id);
             $('#details-order-id').text(order.id);
             $('#details-order-status').text(order.status);
             $('#details-order-total').text(order.total_amount);
@@ -352,6 +354,62 @@ $(document).ready(function() {
 
     $('#btn-close-order-details').on('click', function() {
         $('#order-details-view').addClass('hidden');
+    });
+
+    function updateOrderStatus(status) {
+        const orderId = $('#order-details-view').data('current-order-id');
+        if (!orderId) return;
+
+        const confirmationText = status === 'cancelled'
+            ? 'Are you sure you want to cancel this order? This will return items to stock.'
+            : 'Are you sure you want to mark this order as completed?';
+
+        if (confirm(confirmationText)) {
+            apiCall('PUT', `orders.php?id=${orderId}`, { status: status }).done(function(response) {
+                alert(response.message);
+                $('#order-details-view').addClass('hidden');
+                loadOrders();
+            }).fail(function(xhr) {
+                alert('Error: ' + xhr.responseJSON.message);
+            });
+        }
+    }
+
+    $('#btn-mark-completed').on('click', function() {
+        updateOrderStatus('completed');
+    });
+
+    $('#btn-cancel-order').on('click', function() {
+        updateOrderStatus('cancelled');
+    });
+
+    $('#btn-print-bill').on('click', function() {
+        const orderId = $('#order-details-view').data('current-order-id');
+        if (!orderId) return;
+
+        // First, ensure an invoice exists.
+        apiCall('POST', 'invoices.php', { order_id: orderId }).always(function() {
+            // Then, fetch the full order details to print.
+            apiCall('GET', `orders.php?id=${orderId}`).done(function(order) {
+                let printWindow = window.open('', '_blank');
+                printWindow.document.write('<html><head><title>Print Bill</title>');
+                printWindow.document.write('<style>body{font-family:monospace;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #ccc; padding:8px;}</style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(`<h1>Invoice for Order #${order.id}</h1>`);
+                printWindow.document.write(`<p>Date: ${new Date(order.created_at).toLocaleString()}</p>`);
+                printWindow.document.write(`<p>Status: ${order.status}</p>`);
+                printWindow.document.write('<h3>Items:</h3>');
+                printWindow.document.write('<table><thead><tr><th>Product</th><th>Qty</th><th>Price/Unit</th><th>Total</th></tr></thead><tbody>');
+                order.items.forEach(item => {
+                    printWindow.document.write(`<tr><td>${item.product_name}</td><td>${item.quantity}</td><td>${item.price_per_unit}</td><td>${item.total_price}</td></tr>`);
+                });
+                printWindow.document.write('</tbody></table>');
+                printWindow.document.write(`<h2>Total Amount: ${order.total_amount}</h2>`);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+            });
+        });
     });
 
 
