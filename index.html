@@ -21,6 +21,7 @@
         <a href="#reorder-suggestions">Reorder Suggestions</a>
         <a href="#new-po">New Purchase Order</a>
         <a href="#accounting">Accounting</a>
+        <a href="#reports">Reports</a>
     </nav>
 
     <main id="main-content">
@@ -351,6 +352,30 @@
                     <!-- Ledger entries will be inserted here -->
                 </tbody>
             </table>
+        </section>
+
+        <section id="reports" class="page" style="display: none;">
+            <h1>Reports</h1>
+            <div id="report-controls">
+                <select id="report-type">
+                    <option value="">Select a Report</option>
+                    <option value="sales">Sales Report</option>
+                    <option value="stock">Stock Levels</option>
+                    <option value="expiring">Soon-to-Expire Items</option>
+                    <option value="expired_items">Expired Items</option>
+                    <option value="popular_items">Popular Items</option>
+                    <option value="accounting">Accounting Ledger</option>
+                </select>
+                <button id="btn-generate-report">Generate Report</button>
+            </div>
+            <hr>
+            <div id="report-results">
+                <h2>Report Results</h2>
+                <table id="report-table">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </section>
     </main>
 

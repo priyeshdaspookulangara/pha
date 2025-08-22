@@ -17,6 +17,12 @@ if ($method == 'GET') {
             case 'expiring':
                 generate_expiring_report($conn);
                 break;
+            case 'popular_items':
+                generate_popular_items_report($conn);
+                break;
+            case 'expired_items':
+                generate_expired_items_report($conn);
+                break;
             default:
                 http_response_code(400);
                 echo json_encode(array("message" => "Invalid report type."));
@@ -113,6 +119,65 @@ function generate_expiring_report($conn) {
     $stmt->execute();
     $result = $stmt->get_result();
 
+    $report_data = array();
+    while ($row = $result->fetch_assoc()) {
+        $report_data[] = $row;
+    }
+
+    http_response_code(200);
+    echo json_encode($report_data);
+}
+
+function generate_popular_items_report($conn) {
+    $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
+
+    $query = "
+        SELECT
+            p.name as product_name,
+            SUM(oi.quantity) as total_sold
+        FROM
+            order_items oi
+        JOIN
+            products p ON oi.product_id = p.id
+        GROUP BY
+            p.id, p.name
+        ORDER BY
+            total_sold DESC
+        LIMIT ?
+    ";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $report_data = array();
+    while ($row = $result->fetch_assoc()) {
+        $report_data[] = $row;
+    }
+
+    http_response_code(200);
+    echo json_encode($report_data);
+}
+
+function generate_expired_items_report($conn) {
+    $query = "
+        SELECT
+            p.name as product_name,
+            i.batch_number,
+            i.quantity,
+            i.expiry_date
+        FROM
+            inventory i
+        JOIN
+            products p ON i.product_id = p.id
+        WHERE
+            i.expiry_date < CURDATE()
+        ORDER BY
+            i.expiry_date DESC
+    ";
+
+    $result = $conn->query($query);
     $report_data = array();
     while ($row = $result->fetch_assoc()) {
         $report_data[] = $row;
