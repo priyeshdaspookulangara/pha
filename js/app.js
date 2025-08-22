@@ -355,6 +355,102 @@ $(document).ready(function() {
     });
 
 
+    // --- NEW PRESCRIPTION PAGE LOGIC ---
+    let prescriptionCart = [];
+
+    function loadNewPrescriptionPage() {
+        // Fetch doctors, patients, and products
+        const doctorsCall = apiCall('GET', 'doctors.php');
+        const patientsCall = apiCall('GET', 'patients.php');
+        const productsCall = apiCall('GET', 'products.php');
+
+        $.when(doctorsCall, patientsCall, productsCall).done(function(doctorsRes, patientsRes, productsRes) {
+            const doctors = doctorsRes[0];
+            const patients = patientsRes[0];
+            const products = productsRes[0];
+
+            const doctorSelect = $('#new-prescription-doctor-id');
+            doctorSelect.empty().append('<option value="" disabled selected>Select Doctor</option>');
+            doctors.forEach(doc => doctorSelect.append(`<option value="${doc.id}">${doc.name}</option>`));
+
+            const patientSelect = $('#new-prescription-patient-id');
+            patientSelect.empty().append('<option value="" disabled selected>Select Patient</option>');
+            patients.forEach(p => patientSelect.append(`<option value="${p.id}">${p.name}</option>`));
+
+            const productSelect = $('#new-prescription-product-id');
+            productSelect.empty().append('<option value="" disabled selected>Select Product</option>');
+            products.forEach(p => productSelect.append(`<option value="${p.id}" data-name="${p.name}">${p.name}</option>`));
+        });
+
+        // Set current date
+        $('#new-prescription-date').val(new Date().toISOString().slice(0, 10));
+
+        // Reset cart
+        prescriptionCart = [];
+        renderPrescriptionCart();
+    }
+
+    function renderPrescriptionCart() {
+        const tableBody = $('#prescription-cart-table tbody');
+        tableBody.empty();
+        prescriptionCart.forEach(function(item, index) {
+            tableBody.append(`
+                <tr>
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td><button class="btn-remove-from-prescription-cart" data-index="${index}">Remove</button></td>
+                </tr>
+            `);
+        });
+    }
+
+    $('#btn-add-to-prescription-cart').on('click', function() {
+        const productId = $('#new-prescription-product-id').val();
+        const productName = $('#new-prescription-product-id').find(':selected').data('name');
+        const quantity = parseInt($('#new-prescription-quantity').val(), 10);
+
+        if (productId && quantity > 0) {
+            prescriptionCart.push({
+                product_id: parseInt(productId, 10),
+                product_name: productName,
+                quantity: quantity
+            });
+            renderPrescriptionCart();
+            $('#new-prescription-product-id').val('');
+            $('#new-prescription-quantity').val('');
+        } else {
+            alert('Please select a product and enter a valid quantity.');
+        }
+    });
+
+    $('#prescription-cart-table').on('click', '.btn-remove-from-prescription-cart', function() {
+        const indexToRemove = $(this).data('index');
+        prescriptionCart.splice(indexToRemove, 1);
+        renderPrescriptionCart();
+    });
+
+    $('#btn-submit-prescription').on('click', function() {
+        const prescriptionData = {
+            doctor_id: parseInt($('#new-prescription-doctor-id').val(), 10),
+            patient_id: parseInt($('#new-prescription-patient-id').val(), 10),
+            prescription_date: $('#new-prescription-date').val(),
+            products: prescriptionCart.map(item => ({ product_id: item.product_id, quantity: item.quantity }))
+        };
+
+        if (!prescriptionData.doctor_id || !prescriptionData.patient_id || !prescriptionData.prescription_date || prescriptionData.products.length === 0) {
+            alert('Please fill out all fields and add at least one product.');
+            return;
+        }
+
+        apiCall('POST', 'prescriptions.php', prescriptionData).done(function(response) {
+            alert(response.message);
+            window.location.hash = '#orders';
+        }).fail(function(xhr) {
+            alert('Error: ' + xhr.responseJSON.message);
+        });
+    });
+
+
     // --- ROUTER ---
     function router() {
         const hash = window.location.hash || '#dashboard';
@@ -381,6 +477,9 @@ $(document).ready(function() {
                 break;
             case '#orders':
                 loadOrders();
+                break;
+            case '#new-prescription':
+                loadNewPrescriptionPage();
                 break;
             // Add cases for other pages here
         }

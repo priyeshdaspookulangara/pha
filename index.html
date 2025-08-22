@@ -15,6 +15,7 @@
         <a href="#inventory">Inventory</a>
         <a href="#orders">Orders</a>
         <a href="#new-sale">New Sale</a>
+        <a href="#new-prescription">New Prescription</a>
     </nav>
 
     <main id="main-content">
@@ -180,6 +181,36 @@
             </table>
 
             <button id="btn-submit-sale">Submit Sale</button>
+        </section>
+
+        <section id="new-prescription" class="page" style="display: none;">
+            <h1>New Prescription</h1>
+
+            <form id="new-prescription-form">
+                <select id="new-prescription-doctor-id" required></select>
+                <select id="new-prescription-patient-id" required></select>
+                <input type="date" id="new-prescription-date" required>
+                <hr>
+                <select id="new-prescription-product-id" required></select>
+                <input type="number" id="new-prescription-quantity" placeholder="Quantity" required min="1">
+                <button type="button" id="btn-add-to-prescription-cart">Add to Prescription</button>
+            </form>
+
+            <h2>Prescription Items</h2>
+            <table id="prescription-cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Prescription cart items will be inserted here -->
+                </tbody>
+            </table>
+
+            <button id="btn-submit-prescription">Submit Prescription</button>
         </section>
     </main>
 
